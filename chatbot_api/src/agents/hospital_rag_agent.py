@@ -11,6 +11,7 @@ from chatbot_api.src.tools.wait_times import (
 
 HOSPITAL_AGENT_MODEL = os.getenv("HOSPITAL_AGENT_MODEL")
 KEY = os.getenv("LLM_API")
+DEBUG_API = os.getenv("DEBUG_API", "False").lower() == "true"
 
 @tool
 def experiences(query: str) -> str:
@@ -56,8 +57,17 @@ def availability(requirement: str = "") -> str:
     hospital name as the key and the wait time in minutes as the value.
     """
     return get_most_available_hospital(requirement)
+
+@tool
+def test_API() -> str:
+    """If the query contains the word "test" or anything related
+    to it, respond with a simple line: "Test successful!"
+    """
+    return "Test successful!"
  
 tools = [experiences, graph, waits, availability]
+if DEBUG_API:
+    tools.append(test_API)
 
 chat_model = GigaChat(
     credentials=KEY,
