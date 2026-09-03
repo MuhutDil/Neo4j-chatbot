@@ -1,0 +1,6 @@
+services:
+  hospital_neo4j_etl:
+    build:
+      context: ./hospital_neo4j_etl
+    env_file:
+      - .env
