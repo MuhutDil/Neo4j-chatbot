@@ -2,9 +2,9 @@ import os
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_gigachat import GigaChat
-from chatbot_api.src.chains.hospital_review_chain import reviews_vector_chain
-from chatbot_api.src.chains.hospital_cypher_chain import hospital_cypher_chain
-from chatbot_api.src.tools.wait_times import (
+from chains.hospital_review_chain import get_reviews_vector_chain
+from chains.hospital_cypher_chain import hospital_cypher_chain
+from tools.wait_times import (
     get_current_wait_times,
     get_most_available_hospital,
 )
@@ -24,7 +24,7 @@ def experiences(query: str) -> str:
     "Are patients satisfied with their care?", the input should be
     "Are patients satisfied with their care?".
     """
-    return reviews_vector_chain.invoke(query)
+    return get_reviews_vector_chain().invoke(query)
  
 @tool
 def graph(query: str) -> str:
@@ -87,5 +87,10 @@ hospital_rag_agent = create_agent(
 
 def hospital_rag_agent_invoke(query: str) -> dict[list]:
     return hospital_rag_agent.invoke(
+    {"messages": [{'role': 'human', 'content': query}]}
+)
+
+def hospital_rag_agent_ainvoke(query: str) -> dict[list]:
+    return hospital_rag_agent.ainvoke(
     {"messages": [{'role': 'human', 'content': query}]}
 )
