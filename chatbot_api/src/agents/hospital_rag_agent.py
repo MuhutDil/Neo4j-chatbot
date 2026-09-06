@@ -3,7 +3,7 @@ from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_gigachat import GigaChat
 from chains.hospital_review_chain import get_reviews_vector_chain
-from chains.hospital_cypher_chain import hospital_cypher_chain
+from chains.hospital_cypher_chain import get_hospital_cypher_chain
 from tools.wait_times import (
     get_current_wait_times,
     get_most_available_hospital,
@@ -35,7 +35,7 @@ def graph(query: str) -> str:
     have there been?", the input should be "How many visits have
     there been?".
     """
-    return hospital_cypher_chain.invoke(query)
+    return get_hospital_cypher_chain().invoke(query)
  
 @tool
 def waits(hospital_name: str = "all") -> str:
@@ -87,10 +87,10 @@ hospital_rag_agent = create_agent(
 
 def hospital_rag_agent_invoke(query: str) -> dict[list]:
     return hospital_rag_agent.invoke(
-    {"messages": [{'role': 'human', 'content': query}]}
-)
+        {"messages": [{'role': 'human', 'content': query}]}
+    )
 
-def hospital_rag_agent_ainvoke(query: str) -> dict[list]:
-    return hospital_rag_agent.ainvoke(
-    {"messages": [{'role': 'human', 'content': query}]}
-)
+async def hospital_rag_agent_ainvoke(query: str) -> dict[list]:
+    return await hospital_rag_agent.ainvoke(
+        {"messages": [{'role': 'human', 'content': query}]}
+    )

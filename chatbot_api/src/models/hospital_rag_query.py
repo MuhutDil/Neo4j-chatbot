@@ -1,9 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class HospitalQueryInput(BaseModel):
     text: str
 
 class HospitalQueryOutput(BaseModel):
-    input: str
-    output: str
-    intermediate_steps: list[str]
+    messages: list

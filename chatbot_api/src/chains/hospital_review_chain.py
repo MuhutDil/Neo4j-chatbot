@@ -8,34 +8,33 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.documents import Document
 
-
-HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")
-NEO4J_URI = os.getenv("NEO4J_URI")
-NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
-KEY = os.getenv("LLM_API")
-
-graph = Neo4jGraph(url=NEO4J_URI, database=NEO4J_USERNAME, password=NEO4J_PASSWORD)
-llm = GigaChat(
-    credentials=KEY,
-    verify_ssl_certs=False,
-    model=os.getenv("HOSPITAL_QA_MODEL"),
-    timeout=120, 
-    temperature=0,
-)
-llm_embedding = GigaChatEmbeddings(
-        credentials=KEY, 
-        verify_ssl_certs=False,
-    )
-
-# Limited the length to the number 128. 
-# Because GigaChatEmbeddings can’t handle a large number
-# of documents in one go (gigachat.exceptions.ServerError: 500).
-# Other embeddings might not have this problem.
-
-BATCH = 128
-
 def get_reviews_vector_chain():
+    HOSPITAL_QA_MODEL = os.getenv("HOSPITAL_QA_MODEL")
+    KEY = os.getenv("LLM_API")
+    NEO4J_URI = os.getenv("NEO4J_URI")
+    NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
+    NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
+    
+    graph = Neo4jGraph(url=NEO4J_URI, database=NEO4J_USERNAME, password=NEO4J_PASSWORD)
+    llm = GigaChat(
+        credentials=KEY,
+        verify_ssl_certs=False,
+        model=HOSPITAL_QA_MODEL,
+        timeout=120, 
+        temperature=0,
+    )
+    llm_embedding = GigaChatEmbeddings(
+            credentials=KEY, 
+            verify_ssl_certs=False,
+        )
+
+    # Limited the length to the number 128. 
+    # Because GigaChatEmbeddings can’t handle a large number
+    # of documents in one go (gigachat.exceptions.ServerError: 500).
+    # Other embeddings might not have this problem.
+
+    BATCH = 128
+
     records = graph.query("""
         MATCH (r:Review)
         RETURN elementId(r) AS id,
