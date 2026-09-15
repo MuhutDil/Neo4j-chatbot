@@ -1,17 +1,15 @@
-import os
+from typing import Any
+
+import config
+from chains.hospital_cypher_chain import get_hospital_cypher_chain
+from chains.hospital_review_chain import get_reviews_vector_chain
 from langchain.agents import create_agent
 from langchain.tools import tool
-from langchain_gigachat import GigaChat
-from chains.hospital_review_chain import get_reviews_vector_chain
-from chains.hospital_cypher_chain import get_hospital_cypher_chain
 from tools.wait_times import (
     get_current_wait_times,
     get_most_available_hospital,
 )
 
-HOSPITAL_AGENT_MODEL = os.getenv("HOSPITAL_AGENT_MODEL")
-KEY = os.getenv("LLM_API")
-DEBUG_API = os.getenv("DEBUG_API", "False").lower() == "true"
 
 @tool
 def experiences(query: str) -> str:
@@ -66,31 +64,25 @@ def test_API() -> str:
     return "Test successful!"
  
 tools = [experiences, graph, waits, availability]
-if DEBUG_API:
+if config.DEBUG_API:
     tools.append(test_API)
 
-chat_model = GigaChat(
-    credentials=KEY,
-    verify_ssl_certs=False,
-    model=os.getenv("HOSPITAL_QA_MODEL"),
-    timeout=120, 
-    temperature=0,
-)
-
 hospital_rag_agent = create_agent(
-    model=chat_model,
+    model=config.llm,
     tools=tools,
     system_prompt="""You are a helpful hospital assistant that can
     answer questions about patients experiences, hospital relationships,
     wait times, and hospital availability"""
 )
 
-def hospital_rag_agent_invoke(query: str) -> dict[list]:
+def hospital_rag_agent_invoke(query: str) -> dict[str, Any]:
+    """Used to send request to GigaChat"""
     return hospital_rag_agent.invoke(
         {"messages": [{'role': 'human', 'content': query}]}
     )
 
-async def hospital_rag_agent_ainvoke(query: str) -> dict[list]:
+async def hospital_rag_agent_ainvoke(query: str) -> dict[str, Any]:
+    """Used to send async request to GigaChat"""
     return await hospital_rag_agent.ainvoke(
         {"messages": [{'role': 'human', 'content': query}]}
     )

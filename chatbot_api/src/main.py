@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+"""FastAPI application for the Hospital Chatbot.
+
+This module provides the main API endpoints for the hospital RAG chatbot system.
+It exposes endpoints for health checks and querying the hospital agent with
+natural language questions about hospital data, wait times, and patient reviews.
+"""
+
 from agents.hospital_rag_agent import hospital_rag_agent_ainvoke
+from fastapi import FastAPI
 from models.hospital_rag_query import HospitalQueryInput, HospitalQueryOutput
-from utils.async_utils import async_retry
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 
 app = FastAPI(
     title="Hospital Chatbot",

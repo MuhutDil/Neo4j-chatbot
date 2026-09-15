@@ -1,9 +1,55 @@
+"""Streamlit frontend for the Hospital System Chatbot.
+
+This module provides a web-based chat interface using Streamlit that allows users
+to interact with a LangChain RAG agent designed to answer questions about a
+synthetic hospital system. The chatbot can query information about:
+- Hospitals and their locations
+- Patients and their visits
+- Physicians and their treatments
+- Insurance payers and billing
+- Patient reviews and wait times
+
+The frontend connects to a backend API service that processes user queries
+using retrieval-augmented generation (RAG) over both structured Neo4j graph data
+and unstructured review documents.
+
+Environment Variables:
+    CHATBOT_URL: URL of the backend chatbot API (default: http://localhost:8000/hospital-rag-agent)
+
+Features:
+    - Chat history persistence within session
+    - Loading state while waiting for API responses
+    - Error handling for API failures
+    - Sidebar with example questions and usage information
+"""
+
 import os
+import time
+
 import requests
 import streamlit as st
 
 CHATBOT_URL = os.getenv("CHATBOT_URL", "http://localhost:8000/hospital-rag-agent")
-    
+
+# Wait for the API to be ready before starting the frontend
+def wait_for_api(timeout=60):
+    """Wait for the chatbot API to be available."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(os.getenv("CHATBOT_URL", "http://chatbot_api:8000/").replace("/hospital-rag-agent", "/"), timeout=5)
+            if response.status_code == 200:
+                return True
+        except requests.exceptions.RequestException:
+            pass
+        time.sleep(2)
+    return False
+
+# Show a loading screen while waiting for the API
+if not wait_for_api():
+    st.error("Unable to connect to the chatbot API. Please ensure the API service is running.")
+    st.stop()
+
 
 with st.sidebar:
     st.header("About")
@@ -67,12 +113,8 @@ if "messages" not in st.session_state:
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        if "output" in message.keys():
+        if "output" in message:
             st.markdown(message["output"])
-
-        # if "explanation" in message.keys():
-        #     with st.status("How was this generated", state="complete"):
-        #         st.info(message["explanation"])
 
 if prompt := st.chat_input("What do you want to know?"):
     st.chat_message("user").markdown(prompt)

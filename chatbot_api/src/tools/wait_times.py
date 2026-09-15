@@ -1,18 +1,12 @@
-import os
 from typing import Any
+
+import config
 import numpy as np
-from langchain_neo4j import Neo4jGraph
 
 
 def _get_current_hospitals() -> list[str]:
     """Fetch a list of current hospital names from a Neo4j database."""
-    graph = Neo4jGraph(
-        url=os.getenv("NEO4J_URI"),
-        database=os.getenv("NEO4J_USERNAME"),
-        password=os.getenv("NEO4J_PASSWORD"),
-    )
-
-    current_hospitals = graph.query(
+    current_hospitals = config.graph.query(
         """
         MATCH (h:Hospital)
         RETURN h.name AS hospital_name
@@ -23,12 +17,13 @@ def _get_current_hospitals() -> list[str]:
 
 def _get_current_wait_time_minutes(hospital: str) -> int:
     """Get the current wait time at a hospital in minutes."""
+    MAX_WAIT_TIME_MINUTES = 600
     current_hospitals = _get_current_hospitals()
 
     if hospital.lower() not in current_hospitals:
         return -1
 
-    return np.random.randint(low=0, high=600)
+    return np.random.randint(low=0, high=MAX_WAIT_TIME_MINUTES)
 
 
 def get_current_wait_times(hospital: str) -> str:
