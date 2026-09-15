@@ -106,7 +106,7 @@ CHATBOT_URL=http://chatbot_api:8000/hospital-rag-agent
 
 ```bash
 # Build and start all services
-docker-compose up --build
+docker compose up --build
 
 # Access the frontend at http://localhost:8501
 # API available at http://localhost:8000
