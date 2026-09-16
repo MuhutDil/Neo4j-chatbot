@@ -1,5 +1,4 @@
 # Hospital System Chatbot
-Source - [RealPython](https://realpython.com/build-llm-rag-chatbot-with-langchain/)
 
 A multi-service RAG (Retrieval-Augmented Generation) chatbot system designed to answer questions about a synthetic hospital network. The system combines structured graph data (Neo4j) with unstructured patient reviews, using LangChain agents and GigaChat LLM for natural language querying.
 
@@ -239,3 +238,6 @@ python tests/async_agent_requests.py
 ├── docker-compose.yml        # Service orchestration
 └── requirements.txt          # Python dependencies
 ```
+## 📄 License
+
+This is a training project based on an article [RealPython](https://realpython.com/build-llm-rag-chatbot-with-langchain/).
